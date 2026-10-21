@@ -142,5 +142,5 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # TODO: Change redirect to ads:list
 LOGIN_URL = "users:login"
-LOGIN_REDIRECT_URL = "admin:index"
-LOGOUT_REDIRECT_URL = "admin:index"
+LOGIN_REDIRECT_URL = "ads:list"
+LOGOUT_REDIRECT_URL = "ads:list"

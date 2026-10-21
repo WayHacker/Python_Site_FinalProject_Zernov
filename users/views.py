@@ -10,12 +10,12 @@ class RegisterView(CreateView):
     """Регистрация нового пользователя."""
 
     form_class = UserRegisterForm
-    template_name = 'users/register.html'
-    success_url = reverse_lazy('admin:index')
+    template_name = "users/register.html"
+    success_url = reverse_lazy("ads:list")
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('admin:index')
+            return redirect("ads:list")
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):

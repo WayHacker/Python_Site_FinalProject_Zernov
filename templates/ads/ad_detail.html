@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ ad.title }}</title>
+</head>
+<body>
+    <p><a href="{% url 'ads:list' %}">← К списку</a></p>
+
+    <h1>{{ ad.title }}</h1>
+    <p><strong>Категория:</strong> {{ ad.category.name }}</p>
+    <p><strong>Размер:</strong> {{ ad.size }}</p>
+    {% if ad.brand %}<p><strong>Бренд:</strong> {{ ad.brand }}</p>{% endif %}
+    <p><strong>Цена:</strong> {{ ad.price_per_day }} ₽/сутки</p>
+    {% if ad.deposit %}<p><strong>Залог:</strong> {{ ad.deposit }} ₽</p>{% endif %}
+    <p><strong>Город:</strong> {{ ad.city }}{% if ad.address %}, {{ ad.address }}{% endif %}</p>
+
+    {% if ad.image %}
+        <p><img src="{{ ad.image.url }}" width="300" alt=""></p>
+    {% endif %}
+
+    <p>{{ ad.description }}</p>
+
+    <h2>Контакты</h2>
+    {% if user.is_authenticated %}
+        <p>Телефон: {{ ad.contact_phone }}</p>
+        {% if ad.contact_email %}<p>Email: {{ ad.contact_email }}</p>{% endif %}
+    {% else %}
+        <p>
+            <a href="{% url 'users:login' %}?next={{ request.path }}">
+                Войдите
+            </a>, чтобы увидеть контактную информацию.
+        </p>
+    {% endif %}
+
+    {% if user == ad.owner %}
+        <p>
+            <a href="{% url 'ads:edit' ad.pk %}">Редактировать</a> |
+            <a href="{% url 'ads:delete' ad.pk %}">Удалить</a>
+        </p>
+        {% if ad.status == 'pending' %}
+            <p><em>Объявление на модерации.</em></p>
+        {% elif ad.status == 'rejected' %}
+            <p><em>Отклонено: {{ ad.moderation_comment }}</em></p>
+        {% endif %}
+    {% endif %}
+
+    <h2>Отзывы</h2>
+    {% for review in reviews %}
+        <div>
+            <strong>{{ review.author.username }}</strong>
+            — {{ review.rating }}★ — {{ review.created_at|date:"d.m.Y" }}
+            <p>{{ review.text }}</p>
+        </div>
+    {% empty %}
+        <p>Отзывов пока нет.</p>
+    {% endfor %}
+
+    {% if user.is_authenticated and can_review %}
+        <h3>Оставить отзыв</h3>
+        <form method="post" action="{% url 'reviews:add' ad.pk %}">
+            {% csrf_token %}
+            {{ review_form.as_p }}
+            <button type="submit">Отправить</button>
+        </form>
+    {% elif not user.is_authenticated %}
+        <p><a href="{% url 'users:login' %}?next={{ request.path }}">Войдите</a>, чтобы оставить отзыв.</p>
+    {% endif %}
+</body>
+</html>
