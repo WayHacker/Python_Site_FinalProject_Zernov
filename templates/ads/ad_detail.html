@@ -87,10 +87,7 @@
             <div class="review-header">
                 <div>
                     <span class="review-author">{{ review.author.username }}</span>
-                    <span class="review-rating">
-                        {% for _ in "12345"|slice:review.rating %}★{% endfor %}
-                        {% for _ in "12345"|slice:review.rating|add:"0" %}{% endfor %}
-                    </span>
+                    <span class="review-rating">{% for _ in "12345"|slice:review.rating %}★{% endfor %}</span>
                 </div>
                 <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
             </div>
