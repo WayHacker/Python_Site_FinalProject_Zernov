@@ -1,17 +1,18 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Удалить объявление</title>
-</head>
-<body>
-    <h1>Удалить объявление?</h1>
-    <p>Вы уверены, что хотите удалить «{{ object.title }}»?</p>
+{% extends 'base.html' %}
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Да, удалить</button>
-        <a href="{% url 'ads:detail' object.pk %}">Отмена</a>
-    </form>
-</body>
-</html>
+{% block title %}Удалить объявление{% endblock %}
+
+{% block content %}
+    <div class="form-card">
+        <h1 class="mt-0" style="color: var(--red)">Удалить объявление?</h1>
+        <p>Вы уверены, что хотите удалить «{{ object.title }}»? Это действие необратимо.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">Да, удалить</button>
+                <a href="{% url 'ads:detail' object.pk %}" class="btn">Отмена</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

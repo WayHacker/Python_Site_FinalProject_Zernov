@@ -1,70 +1,117 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ ad.title }}</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}{{ ad.title }} — Аренда одежды{% endblock %}
+
+{% block content %}
     <p><a href="{% url 'ads:list' %}">← К списку</a></p>
 
-    <h1>{{ ad.title }}</h1>
-    <p><strong>Категория:</strong> {{ ad.category.name }}</p>
-    <p><strong>Размер:</strong> {{ ad.size }}</p>
-    {% if ad.brand %}<p><strong>Бренд:</strong> {{ ad.brand }}</p>{% endif %}
-    <p><strong>Цена:</strong> {{ ad.price_per_day }} ₽/сутки</p>
-    {% if ad.deposit %}<p><strong>Залог:</strong> {{ ad.deposit }} ₽</p>{% endif %}
-    <p><strong>Город:</strong> {{ ad.city }}{% if ad.address %}, {{ ad.address }}{% endif %}</p>
+    <div class="ad-detail">
+        <div>
+            {% if ad.image %}
+                <img src="{{ ad.image.url }}" alt="{{ ad.title }}" class="ad-detail-image">
+            {% else %}
+                <div class="ad-card-image-placeholder" style="border-radius:10px;border:1px solid var(--bg3)">
+                    Нет фото
+                </div>
+            {% endif %}
+        </div>
 
-    {% if ad.image %}
-        <p><img src="{{ ad.image.url }}" width="300" alt=""></p>
-    {% endif %}
+        <div>
+            <div class="flex-between mb-2">
+                <h1 class="mt-0">{{ ad.title }}</h1>
+                {% if user == ad.owner %}
+                    <span class="badge badge-{{ ad.status }}">{{ ad.get_status_display }}</span>
+                {% endif %}
+            </div>
 
-    <p>{{ ad.description }}</p>
+            <p class="text-muted mb-3">{{ ad.description }}</p>
 
-    <h2>Контакты</h2>
-    {% if user.is_authenticated %}
-        <p>Телефон: {{ ad.contact_phone }}</p>
-        {% if ad.contact_email %}<p>Email: {{ ad.contact_email }}</p>{% endif %}
-    {% else %}
-        <p>
-            <a href="{% url 'users:login' %}?next={{ request.path }}">
-                Войдите
-            </a>, чтобы увидеть контактную информацию.
-        </p>
-    {% endif %}
+            <dl class="ad-detail-info">
+                <dt>Категория</dt>
+                <dd>{{ ad.category.name }}</dd>
 
-    {% if user == ad.owner %}
-        <p>
-            <a href="{% url 'ads:edit' ad.pk %}">Редактировать</a> |
-            <a href="{% url 'ads:delete' ad.pk %}">Удалить</a>
-        </p>
-        {% if ad.status == 'pending' %}
-            <p><em>Объявление на модерации.</em></p>
-        {% elif ad.status == 'rejected' %}
-            <p><em>Отклонено: {{ ad.moderation_comment }}</em></p>
-        {% endif %}
-    {% endif %}
+                <dt>Размер</dt>
+                <dd>{{ ad.size }}</dd>
+
+                {% if ad.brand %}
+                    <dt>Бренд</dt>
+                    <dd>{{ ad.brand }}</dd>
+                {% endif %}
+
+                <dt>Цена</dt>
+                <dd style="color: var(--yellow); font-weight: 700; font-size: 1.25rem">
+                    {{ ad.price_per_day }} ₽ / сутки
+                </dd>
+
+                {% if ad.deposit %}
+                    <dt>Залог</dt>
+                    <dd>{{ ad.deposit }} ₽</dd>
+                {% endif %}
+
+                <dt>Местоположение</dt>
+                <dd>{{ ad.city }}{% if ad.address %}, {{ ad.address }}{% endif %}</dd>
+            </dl>
+
+            <hr>
+
+            <h2>Контакты</h2>
+            {% if user.is_authenticated %}
+                <p>📞 {{ ad.contact_phone }}</p>
+                {% if ad.contact_email %}<p>✉️ {{ ad.contact_email }}</p>{% endif %}
+            {% else %}
+                <p class="text-muted">
+                    <a href="{% url 'users:login' %}?next={{ request.path }}">Войдите</a>,
+                    чтобы увидеть контактную информацию.
+                </p>
+            {% endif %}
+
+            {% if user == ad.owner %}
+                <div class="form-actions mt-3">
+                    <a href="{% url 'ads:edit' ad.pk %}" class="btn btn-warning">Редактировать</a>
+                    <a href="{% url 'ads:delete' ad.pk %}" class="btn btn-danger">Удалить</a>
+                </div>
+                {% if ad.status == 'pending' %}
+                    <p class="text-muted mt-2"><em>Объявление на модерации.</em></p>
+                {% elif ad.status == 'rejected' %}
+                    <p style="color: var(--red)" class="mt-2"><em>Отклонено: {{ ad.moderation_comment }}</em></p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <hr>
 
     <h2>Отзывы</h2>
     {% for review in reviews %}
-        <div>
-            <strong>{{ review.author.username }}</strong>
-            — {{ review.rating }}★ — {{ review.created_at|date:"d.m.Y" }}
-            <p>{{ review.text }}</p>
+        <div class="review">
+            <div class="review-header">
+                <div>
+                    <span class="review-author">{{ review.author.username }}</span>
+                    <span class="review-rating">
+                        {% for _ in "12345"|slice:review.rating %}★{% endfor %}
+                        {% for _ in "12345"|slice:review.rating|add:"0" %}{% endfor %}
+                    </span>
+                </div>
+                <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
+            </div>
+            <p class="mb-0">{{ review.text }}</p>
         </div>
     {% empty %}
-        <p>Отзывов пока нет.</p>
+        <p class="text-muted">Отзывов пока нет.</p>
     {% endfor %}
 
     {% if user.is_authenticated and can_review %}
-        <h3>Оставить отзыв</h3>
-        <form method="post" action="{% url 'reviews:add' ad.pk %}">
-            {% csrf_token %}
-            {{ review_form.as_p }}
-            <button type="submit">Отправить</button>
-        </form>
+        <div class="form-card mt-3">
+            <h3 class="mt-0">Оставить отзыв</h3>
+            <form method="post" action="{% url 'reviews:add' ad.pk %}">
+                {% csrf_token %}
+                {{ review_form.as_p }}
+                <button type="submit" class="btn btn-primary">Отправить</button>
+            </form>
+        </div>
     {% elif not user.is_authenticated %}
-        <p><a href="{% url 'users:login' %}?next={{ request.path }}">Войдите</a>, чтобы оставить отзыв.</p>
+        <p class="text-muted mt-2">
+            <a href="{% url 'users:login' %}?next={{ request.path }}">Войдите</a>, чтобы оставить отзыв.
+        </p>
     {% endif %}
-</body>
-</html>
+{% endblock %}

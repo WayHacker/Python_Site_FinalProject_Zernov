@@ -1,30 +1,43 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Мои объявления</title>
-</head>
-<body>
-    <p><a href="{% url 'ads:list' %}">← К списку</a></p>
-    <h1>Мои объявления</h1>
-    <p><a href="{% url 'ads:create' %}">+ Новое объявление</a></p>
+{% extends 'base.html' %}
+
+{% block title %}Мои объявления{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Мои объявления</h1>
+        <a href="{% url 'ads:create' %}" class="btn btn-primary">+ Новое объявление</a>
+    </div>
 
     {% if ads %}
-        <ul>
-        {% for ad in ads %}
-            <li>
-                <a href="{% url 'ads:detail' ad.pk %}">{{ ad.title }}</a>
-                — статус: {{ ad.get_status_display }}
-                {% if ad.status == 'rejected' and ad.moderation_comment %}
-                    ({{ ad.moderation_comment }})
-                {% endif %}
-                — <a href="{% url 'ads:edit' ad.pk %}">ред.</a>
-                — <a href="{% url 'ads:delete' ad.pk %}">уд.</a>
-            </li>
-        {% endfor %}
-        </ul>
+        <div class="ads-grid">
+            {% for ad in ads %}
+                <div class="ad-card">
+                    <div class="ad-card-body">
+                        <div class="flex-between mb-1">
+                            <a href="{% url 'ads:detail' ad.pk %}" class="ad-card-title">{{ ad.title }}</a>
+                            <span class="badge badge-{{ ad.status }}">{{ ad.get_status_display }}</span>
+                        </div>
+                        <div class="ad-card-meta">
+                            {{ ad.city }} · {{ ad.price_per_day }} ₽ / сутки
+                        </div>
+                        {% if ad.status == 'rejected' and ad.moderation_comment %}
+                            <p style="color: var(--red); font-size: 0.85rem">
+                                {{ ad.moderation_comment }}
+                            </p>
+                        {% endif %}
+                        <div class="form-actions" style="margin-top: auto">
+                            <a href="{% url 'ads:edit' ad.pk %}" class="btn btn-sm btn-warning">Ред.</a>
+                            <a href="{% url 'ads:delete' ad.pk %}" class="btn btn-sm btn-danger">Уд.</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <p>У вас пока нет объявлений.</p>
+        <div class="empty-state">
+            <h2>У вас пока нет объявлений</h2>
+            <p>Разместите первую вещь в аренду — это займёт минуту.</p>
+            <a href="{% url 'ads:create' %}" class="btn btn-primary">Создать объявление</a>
+        </div>
     {% endif %}
-</body>
-</html>
+{% endblock %}
