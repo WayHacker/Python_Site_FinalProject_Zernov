@@ -1,11 +1,7 @@
 asgiref==3.12.1
 Django==6.1.2
-iniconfig==2.3.1
-packaging==26.3
 pillow==12.3.0
-pluggy==1.6.0
 psycopg2-binary==2.9.13
-Pygments==2.21.0
 pytest==9.1.1
 pytest-django==4.14.0
 python-decouple==3.8

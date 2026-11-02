@@ -33,3 +33,8 @@ staticfiles/
 .pytest_cache/
 .coverage
 htmlcov/
+
+
+# Docker
+.env.docker 
+staticfiles/
