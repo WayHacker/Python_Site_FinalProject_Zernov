@@ -19,8 +19,8 @@ for attempt in range(30):
         conn.close()
         print("✅ PostgreSQL готов")
         sys.exit(0)
-    except psycopg2.OperationalError:
-        print(f"   попытка {attempt + 1}/30...")
+    except psycopg2.OperationalError as e:
+        print(f"   попытка {attempt + 1}/30: {e}")
         time.sleep(2)
 print("❌ PostgreSQL так и не поднялся")
 sys.exit(1)
@@ -30,7 +30,7 @@ echo "📦 Применяем миграции..."
 python manage.py migrate --noinput
 
 echo "📁 Собираем статику..."
-python manage.py collectstatic --noinput || true
+python manage.py collectstatic --noinput
 
 echo "🚀 Запускаем сервер на 0.0.0.0:8000..."
 exec python manage.py runserver 0.0.0.0:8000
