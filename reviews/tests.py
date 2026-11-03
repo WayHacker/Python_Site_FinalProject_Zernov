@@ -1,8 +1,9 @@
 import pytest
 from django.urls import reverse
 
-from users.models import User
 from ads.models import Ad, Category
+from users.models import User
+
 from .models import Review
 
 

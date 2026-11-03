@@ -2,6 +2,7 @@ import pytest
 from django.urls import reverse
 
 from users.models import User
+
 from .models import Ad, Category
 
 
